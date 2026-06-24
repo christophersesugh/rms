@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  fullname     String
+  email        String        @unique
+  password     String
+  role         String        @default("user")
+  reservations Reservation[]
+  chatSessions ChatSession[]
+}
+
+model Venue {
+  id           Int           @id @default(autoincrement())
+  name         String
+  location     String
+  description  String        @default("")
+  capacity     Int
+  price        Decimal
+  status       String        @default("available")
+  reservations Reservation[]
+}
+
+model Workspace {
+  id           Int           @id @default(autoincrement())
+  name         String
+  type         String
+  description  String        @default("")
+  capacity     Int
+  price        Decimal
+  status       String        @default("available")
+  reservations Reservation[]
+}
+
+model Reservation {
+  id              Int        @id @default(autoincrement())
+  userId          Int
+  user            User       @relation(fields: [userId], references: [id])
+  venueId         Int?
+  venue           Venue?     @relation(fields: [venueId], references: [id])
+  workspaceId     Int?
+  workspace       Workspace? @relation(fields: [workspaceId], references: [id])
+  reservationDate DateTime
+  status          String
+  createdAt       DateTime   @default(now())
+
+  @@index([userId])
+  @@unique([venueId, reservationDate], name: "venue_date_unique")
+  @@unique([workspaceId, reservationDate], name: "workspace_date_unique")
+}
+
+model ChatSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  startedAt DateTime @default(now())
+}

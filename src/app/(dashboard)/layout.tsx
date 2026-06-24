@@ -36,13 +36,13 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0 glass-card border-none">
             <div className="p-6 font-bold text-xl tracking-tight text-primary">
-              ReserveSync
+              Abutu
             </div>
             <SidebarNav userEmail={userEmail} isAdmin={isAdmin} />
           </SheetContent>
         </Sheet>
         <Link href="/dashboard" className="font-bold text-lg tracking-tight text-primary">
-          ReserveSync
+          Abutu
         </Link>
         <div className="w-10" />
       </header>

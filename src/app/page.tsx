@@ -62,7 +62,7 @@ export default function Home() {
             <div className="p-1.5 rounded-lg bg-primary/10">
               <SparklesIcon className="h-5 w-5 text-primary" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-primary">ReserveSync</span>
+            <span className="text-xl font-bold tracking-tight text-primary">Abutu</span>
           </div>
           <nav className="flex items-center gap-3">
             <Link href="/login">

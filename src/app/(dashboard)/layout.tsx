@@ -50,7 +50,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:w-64 glass border-r border-border md:min-h-screen flex-col">
         <div className="p-6 font-bold text-xl tracking-tight text-primary">
-          ReserveSync
+          Abutu
         </div>
         <SidebarNav userEmail={userEmail} isAdmin={isAdmin} />
       </aside>

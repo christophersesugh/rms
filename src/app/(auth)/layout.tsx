@@ -4,8 +4,8 @@ import Link from "next/link";
 import { SparklesIcon } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Sign In — ReserveSync",
-  description: "Sign in to your ReserveSync account to manage venues, workspaces, and reservations.",
+  title: "Sign In — Abutu",
+  description: "Sign in to your Abutu account to manage venues, workspaces, and reservations.",
 };
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
@@ -16,7 +16,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
             <SparklesIcon className="h-6 w-6 text-primary" />
           </div>
-          <span className="text-2xl font-bold tracking-tight text-primary">ReserveSync</span>
+          <span className="text-2xl font-bold tracking-tight text-primary">Abutu</span>
         </Link>
       </div>
       {children}

@@ -4,8 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
-import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2Icon, AlertCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,12 +24,33 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrors({});
 
     try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 400 && data.errors) {
+          setErrors(data.errors);
+        } else if (res.status === 401) {
+          setErrors({ form: data.message });
+        } else {
+          setErrors({ form: data.message || "Something went wrong" });
+        }
+        return;
+      }
+
       const result = await signIn("credentials", {
         email,
         password,
@@ -38,14 +58,13 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        toast.error("Invalid email or password");
+        setErrors({ form: "Something went wrong. Please try again." });
       } else {
-        toast.success("Welcome back!");
         router.push("/dashboard");
         router.refresh();
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      setErrors({ form: "Something went wrong. Please try again." });
     } finally {
       setIsLoading(false);
     }
@@ -61,6 +80,12 @@ export default function LoginPage() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {errors.form && (
+            <div className="flex items-center gap-2 text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+              <AlertCircleIcon className="h-4 w-4 shrink-0" />
+              {errors.form}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -68,12 +93,15 @@ export default function LoginPage() {
               type="email"
               placeholder="name@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined, form: undefined })); }}
               required
               disabled={isLoading}
               autoComplete="email"
-              className="h-11"
+              className={`h-11 ${errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}`}
             />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -82,11 +110,11 @@ export default function LoginPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined, form: undefined })); }}
                 required
                 disabled={isLoading}
                 autoComplete="current-password"
-                className="h-11 pr-10"
+                className={`h-11 pr-10 ${errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
               <button
                 type="button"
@@ -97,6 +125,9 @@ export default function LoginPage() {
                 {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
               </button>
             </div>
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password}</p>
+            )}
           </div>
           <Button type="submit" className="w-full h-11" disabled={isLoading}>
             {isLoading ? (

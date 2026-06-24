@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
-import { EyeIcon, EyeOffIcon, Loader2Icon, CheckIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2Icon, CheckIcon, AlertCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +24,12 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{
+    fullname?: string;
+    email?: string;
+    password?: string;
+    form?: string;
+  }>({});
 
   const passwordChecks = [
     { label: "At least 8 characters", met: password.length >= 8 },
@@ -33,6 +38,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrors({});
 
     try {
       const res = await fetch("/api/register", {
@@ -41,18 +47,29 @@ export default function RegisterPage() {
         body: JSON.stringify({ fullname, email, password }),
       });
 
-      if (res.ok) {
-        toast.success("Account created! Please sign in.");
-        router.push("/login");
-      } else {
-        const data = await res.json();
-        toast.error(data.message || "Failed to create account");
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 400 && data.errors) {
+          setErrors(data.errors);
+        } else if (res.status === 409) {
+          setErrors({ email: data.message });
+        } else {
+          setErrors({ form: data.message || "Failed to create account" });
+        }
+        return;
       }
+
+      router.push("/login?registered=true");
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      setErrors({ form: "Something went wrong. Please try again." });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const clearError = (field: keyof typeof errors) => {
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   return (
@@ -65,18 +82,27 @@ export default function RegisterPage() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {errors.form && (
+            <div className="flex items-center gap-2 text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+              <AlertCircleIcon className="h-4 w-4 shrink-0" />
+              {errors.form}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="fullname">Full Name</Label>
             <Input
               id="fullname"
               placeholder="John Doe"
               value={fullname}
-              onChange={(e) => setFullname(e.target.value)}
+              onChange={(e) => { setFullname(e.target.value); clearError("fullname"); }}
               required
               disabled={isLoading}
               autoComplete="name"
-              className="h-11"
+              className={`h-11 ${errors.fullname ? "border-red-500 focus-visible:ring-red-500" : ""}`}
             />
+            {errors.fullname && (
+              <p className="text-sm text-red-500">{errors.fullname}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -85,12 +111,15 @@ export default function RegisterPage() {
               type="email"
               placeholder="name@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); clearError("email"); }}
               required
               disabled={isLoading}
               autoComplete="email"
-              className="h-11"
+              className={`h-11 ${errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}`}
             />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -99,11 +128,11 @@ export default function RegisterPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
                 required
                 disabled={isLoading}
                 autoComplete="new-password"
-                className="h-11 pr-10"
+                className={`h-11 pr-10 ${errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}`}
               />
               <button
                 type="button"
@@ -114,6 +143,9 @@ export default function RegisterPage() {
                 {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
               </button>
             </div>
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password}</p>
+            )}
             {password.length > 0 && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                 <CheckIcon className={`h-3 w-3 ${passwordChecks[0].met ? "text-emerald-500" : "text-muted-foreground/50"}`} />

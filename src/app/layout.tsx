@@ -7,7 +7,7 @@ import { ThemeProvider } from "next-themes";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "ReserveSync — Venue & Workspace Reservation System",
+  title: "Abutu — Venue & Workspace Reservation System",
   description:
     "A modern venue and workspace reservation platform with AI-powered assistance. Browse, book, and manage event spaces and coworking spots effortlessly.",
   icons: {

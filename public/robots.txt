@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://reservesync.app/sitemap.xml
+Sitemap: https://abutu.app/sitemap.xml

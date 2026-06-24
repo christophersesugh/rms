@@ -60,7 +60,7 @@ export default function RegisterPage() {
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Create account</CardTitle>
         <CardDescription>
-          Get started with ReserveSync in seconds
+          Get started with Abutu in seconds
         </CardDescription>
       </CardHeader>
       <CardContent>

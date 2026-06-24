@@ -91,7 +91,7 @@ export default function Home() {
               not harder.
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              ReserveSync is an intelligent venue and workspace reservation platform.
+              Abutu is an intelligent venue and workspace reservation platform.
               Browse spaces, book instantly, and let AI handle the logistics —
               so you can focus on what matters.
             </p>
@@ -194,9 +194,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <SparklesIcon className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-foreground">ReserveSync</span>
+            <span className="font-semibold text-foreground">Abutu</span>
           </div>
-          <p>&copy; {new Date().getFullYear()} ReserveSync. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Abutu. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -1,8 +1,8 @@
-# ReserveSync
+# Abutu
 
 > An intelligent venue and workspace reservation system with AI-powered assistance.
 
-ReserveSync is a modern full-stack web application that lets users browse, book, and manage event venues and coworking spaces. An integrated AI chatbot helps users find availability and make reservations through natural conversation.
+Abutu is a modern full-stack web application that lets users browse, book, and manage event venues and coworking spaces. An integrated AI chatbot helps users find availability and make reservations through natural conversation.
 
 Built with Next.js 16, React 19, Prisma 7, Tailwind CSS 4, and the Vercel AI SDK.
 

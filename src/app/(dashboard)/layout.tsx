@@ -10,7 +10,7 @@ import { SidebarNav } from "@/components/sidebar-nav";
 import { ChatWidget } from "@/components/chat-widget";
 
 export const metadata: Metadata = {
-  title: "Dashboard — ReserveSync",
+  title: "Dashboard — Abutu",
   description: "Manage your venues, workspaces, and reservations from your dashboard.",
 };
 

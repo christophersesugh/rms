@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     result = await streamText({
       model: openai("gpt-4o"),
       stopWhen: stepCountIs(8),
-      system: `You are a helpful AI assistant for ReserveSync, an automated event venue and workspace reservation system.
+      system: `You are a helpful AI assistant for Abutu, an automated event venue and workspace reservation system.
 You help users find, book, modify, and cancel venues and workspaces.
 Be polite, concise, and helpful.
 

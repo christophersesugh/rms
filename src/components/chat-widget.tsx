@@ -132,7 +132,7 @@ export function ChatWidget() {
         <Card className="w-80 md:w-96 max-w-[calc(100vw-2rem)] flex flex-col shadow-2xl glass-card" style={{ maxHeight: "min(70vh, 500px)" }}>
           <CardHeader className="py-3 px-4 border-b border-border flex flex-row items-center justify-between shrink-0">
             <CardTitle className="text-lg flex items-center">
-              <MessageCircleIcon className="mr-2 h-5 w-5" /> ReserveSync AI
+              <MessageCircleIcon className="mr-2 h-5 w-5" /> Abutu AI
             </CardTitle>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsOpen(false)} aria-label="Close chat">
               <XIcon className="h-4 w-4" />

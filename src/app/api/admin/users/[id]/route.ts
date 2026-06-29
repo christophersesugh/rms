@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
+import { revalidateAll } from "@/lib/revalidate";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -39,6 +40,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       select: { id: true, fullname: true, email: true, role: true },
     });
 
+    revalidateAll();
     return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
@@ -74,6 +76,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     await prisma.user.delete({ where: { id: userId } });
 
+    revalidateAll();
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 import { cancelReservationSchema, updateReservationSchema } from "@/lib/validations";
+import { revalidateAll } from "@/lib/revalidate";
 
 async function getReservationOrThrow(id: string, sessionUserId: string, sessionRole: string) {
   const parseResult = cancelReservationSchema.safeParse({ id });
@@ -60,6 +61,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       },
     });
 
+    revalidateAll();
     return NextResponse.json(updated);
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -91,6 +93,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       data: { status: "Cancelled" },
     });
 
+    revalidateAll();
     return NextResponse.json({ message: "Reservation cancelled successfully" });
   } catch (error) {
     if (error instanceof ValidationError) {

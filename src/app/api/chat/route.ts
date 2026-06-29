@@ -1,7 +1,7 @@
 // @ts-nocheck AI SDK tool types don't resolve through pnpm re-exports — runtime is correct
 import { openai } from "@ai-sdk/openai";
 import { streamText, tool, jsonSchema, stepCountIs } from "ai";
-import { revalidatePath } from "next/cache";
+import { revalidateAll } from "@/lib/revalidate";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 
@@ -10,15 +10,7 @@ export const maxDuration = 30;
 // Bust the cached server-rendered data for pages that show reservations/availability
 // so the user sees changes as soon as the agent finishes a booking action.
 function revalidateDashboard() {
-  for (const path of [
-    "/dashboard",
-    "/reservations",
-    "/venues",
-    "/workspaces",
-    "/admin",
-  ]) {
-    revalidatePath(path);
-  }
+  revalidateAll();
 }
 
 export async function POST(req: Request) {

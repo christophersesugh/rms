@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 import { venueSchema } from "@/lib/validations";
+import { revalidateAll } from "@/lib/revalidate";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -32,6 +33,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       data: parseResult.data,
     });
 
+    revalidateAll();
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
@@ -53,6 +55,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     await prisma.venue.delete({ where: { id: venueId } });
+    revalidateAll();
     return NextResponse.json({ message: "Deleted successfully" });
   } catch {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });

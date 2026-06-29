@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 import { venueSchema } from "@/lib/validations";
+import { revalidateAll } from "@/lib/revalidate";
 
 export async function GET() {
   try {
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
       data: parseResult.data,
     });
 
+    revalidateAll();
     return NextResponse.json(venue, { status: 201 });
   } catch (error) {
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });

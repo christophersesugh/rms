@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 import { reservationSchema } from "@/lib/validations";
+import { revalidateAll } from "@/lib/revalidate";
 
 export async function GET(req: Request) {
   try {
@@ -79,6 +80,7 @@ export async function POST(req: Request) {
       },
     });
 
+    revalidateAll();
     return NextResponse.json(reservation, { status: 201 });
   } catch (error) {
     console.error("Reservation Error:", error);

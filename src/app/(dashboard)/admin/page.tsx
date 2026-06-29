@@ -403,7 +403,7 @@ export default function AdminDashboardPage() {
                 <div key={v.id} className="flex items-center justify-between p-3 rounded-lg border border-border">
                   <div>
                     <p className="font-medium">{v.name}</p>
-                    <p className="text-sm text-muted-foreground">{v.location} &middot; Cap: {v.capacity} &middot; ${v.price}/day</p>
+                    <p className="text-sm text-muted-foreground">{v.location} &middot; Cap: {v.capacity} &middot; ₦{v.price}/day</p>
                     {v.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{v.description}</p>}
                   </div>
                   <div className="flex gap-2">
@@ -431,7 +431,7 @@ export default function AdminDashboardPage() {
                 <div key={w.id} className="flex items-center justify-between p-3 rounded-lg border border-border">
                   <div>
                     <p className="font-medium">{w.name}</p>
-                    <p className="text-sm text-muted-foreground capitalize">{w.type} &middot; Cap: {w.capacity} &middot; ${w.price}/day</p>
+                    <p className="text-sm text-muted-foreground capitalize">{w.type} &middot; Cap: {w.capacity} &middot; ₦{w.price}/day</p>
                     {w.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{w.description}</p>}
                   </div>
                   <div className="flex gap-2">
@@ -476,7 +476,7 @@ export default function AdminDashboardPage() {
                   <Input id="v-capacity" type="number" value={editVenue.capacity} onChange={(e) => setEditVenue({ ...editVenue, capacity: Number(e.target.value) })} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="v-price">Price ($/day)</Label>
+                  <Label htmlFor="v-price">Price (₦/day)</Label>
                   <Input id="v-price" type="number" step="0.01" value={editVenue.price} onChange={(e) => setEditVenue({ ...editVenue, price: Number(e.target.value) })} />
                 </div>
               </div>
@@ -515,7 +515,7 @@ export default function AdminDashboardPage() {
                   <Input id="w-capacity" type="number" value={editWorkspace.capacity} onChange={(e) => setEditWorkspace({ ...editWorkspace, capacity: Number(e.target.value) })} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="w-price">Price ($/day)</Label>
+                  <Label htmlFor="w-price">Price (₦/day)</Label>
                   <Input id="w-price" type="number" step="0.01" value={editWorkspace.price} onChange={(e) => setEditWorkspace({ ...editWorkspace, price: Number(e.target.value) })} />
                 </div>
               </div>

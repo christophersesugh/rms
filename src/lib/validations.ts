@@ -15,6 +15,8 @@ export const reservationSchema = z.object({
   venueId: z.number().int().positive().optional(),
   workspaceId: z.number().int().positive().optional(),
   reservationDate: z.string().datetime("Invalid date format"),
+  startTime: z.string().min(1, "Start time is required").optional().nullable(),
+  endTime: z.string().min(1, "End time is required").optional().nullable(),
 }).refine((data) => data.venueId || data.workspaceId, {
   message: "Either venueId or workspaceId is required",
 });
@@ -25,6 +27,8 @@ export const cancelReservationSchema = z.object({
 
 export const updateReservationSchema = z.object({
   reservationDate: z.string().datetime("Invalid date format"),
+  startTime: z.string().min(1, "Start time is required").optional().nullable(),
+  endTime: z.string().min(1, "End time is required").optional().nullable(),
 });
 
 export const venueSchema = z.object({

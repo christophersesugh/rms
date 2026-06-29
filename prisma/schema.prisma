@@ -53,6 +53,8 @@ model Reservation {
   workspaceId     Int?
   workspace       Workspace? @relation(fields: [workspaceId], references: [id])
   reservationDate DateTime
+  startTime       String?
+  endTime         String?
   status          String
   createdAt       DateTime   @default(now())
 

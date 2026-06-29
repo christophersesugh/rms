@@ -73,11 +73,11 @@ Be polite, concise, and helpful.
 Today's date is ${today}. Always use real dates that are today or in the future. NEVER invent or use past dates.
 
 Tool usage:
-- searchResources: find venues/workspaces matching criteria (location/address, capacity, price, workspace type). Use this when the user describes what they want rather than naming a specific resource (e.g. "a venue downtown for 100 people", "a meeting room under $50").
+- searchResources: find venues/workspaces matching criteria (location/address, capacity, price, workspace type). Use this when the user describes what they want rather than naming a specific resource (e.g. "a venue downtown for 100 people", "a meeting room under ₦50").
 - findNextAvailable: find the EARLIEST available resource matching optional criteria. Use this for "book the next available venue/workspace" or "what's the soonest I can get a workspace".
 - checkAvailability: check whether a specific named resource is free on a specific date.
-- createReservation: make a booking. Call this after the resource and date are known.
-- updateReservation: change the date of an existing reservation (identified by its numeric ID).
+- createReservation: make a booking. Call this after the resource and date are known. You can optionally collect and pass startTime and endTime (in 24h HH:MM format) if specified by the user to serve as a reminder.
+- updateReservation: change the date and/or times of an existing reservation (identified by its numeric ID).
 - cancelReservation: cancel an existing reservation (identified by its numeric ID).
 - listReservations: show the user's current reservations.
 
@@ -88,8 +88,9 @@ Rules:
 - Call checkAvailability only for the single date the user asked about — never loop over multiple dates.
 - After any tool runs, reply in plain language summarizing what happened.
 - To cancel or update, you need the reservation's numeric ID. If the user refers to a reservation without a clear ID, call listReservations first and ask which one they mean.
-- When listing reservations or search results, show each as RES-{id} (for reservations) or with the resource name, location/type, capacity, and price.
-- When reporting availability, also include the resource's capacity and price.`,
+- When listing reservations or search results, show each as RES-{id} (for reservations) or with the resource name, location/type, capacity, price, and start/end times if set.
+- When reporting availability, also include the resource's capacity and price.
+- Start and End Times: Users can specify reservation hours (e.g. 10:00 to 14:00 or 9 AM to 5 PM). When booking or updating, try to extract these times and pass them to tools in HH:MM format. If times are set, include them in your text responses to remind the user.`,
     messages,
     tools: {
       searchResources: tool({
@@ -251,7 +252,7 @@ Rules:
                   capacity: c.capacity,
                   price: String(c.price),
                   date: iso,
-                  message: `${c.name} (capacity ${c.capacity}, $${c.price}/day) is available on ${iso}.`,
+                  message: `${c.name} (capacity ${c.capacity}, ₦${c.price}/day) is available on ${iso}.`,
                 };
               }
             }
@@ -302,7 +303,7 @@ Rules:
               available: !reservation,
               message: reservation
                 ? `${venue.name} is already booked on ${date}.`
-                : `${venue.name} (capacity: ${venue.capacity}, $${venue.price}/day) is available on ${date}.`,
+                : `${venue.name} (capacity: ${venue.capacity}, ₦${venue.price}/day) is available on ${date}.`,
             };
           } else {
             const workspace = await prisma.workspace.findFirst({
@@ -325,28 +326,32 @@ Rules:
               available: !reservation,
               message: reservation
                 ? `${workspace.name} is already booked on ${date}.`
-                : `${workspace.name} (${workspace.type}, capacity: ${workspace.capacity}, $${workspace.price}/day) is available on ${date}.`,
+                : `${workspace.name} (${workspace.type}, capacity: ${workspace.capacity}, ₦${workspace.price}/day) is available on ${date}.`,
             };
           }
         },
       }),
       createReservation: tool({
-        description: "Book a venue or workspace for the user.",
+        description: "Book a venue or workspace for the user with optional start and end times.",
         inputSchema: jsonSchema<{
           resourceType: "venue" | "workspace";
           resourceName: string;
           date: string;
+          startTime?: string;
+          endTime?: string;
         }>({
           type: "object",
           properties: {
             resourceType: { type: "string", enum: ["venue", "workspace"], description: "Type of resource" },
             resourceName: { type: "string", description: "Name of the venue or workspace" },
             date: { type: "string", description: "ISO date string for the reservation" },
+            startTime: { type: "string", description: "Start time of booking in 24h format (HH:MM, e.g. '09:00')" },
+            endTime: { type: "string", description: "End time of booking in 24h format (HH:MM, e.g. '17:00')" },
           },
           required: ["resourceType", "resourceName", "date"],
           additionalProperties: false,
         }),
-        execute: async ({ resourceType, resourceName, date }) => {
+        execute: async ({ resourceType, resourceName, date, startTime, endTime }) => {
           let venueId = null;
           let workspaceId = null;
 
@@ -397,6 +402,8 @@ Rules:
               venueId,
               workspaceId,
               reservationDate: new Date(date),
+              startTime: startTime ?? null,
+              endTime: endTime ?? null,
               status: "Confirmed",
             },
           });
@@ -449,20 +456,24 @@ Rules:
       }),
       updateReservation: tool({
         description:
-          "Change the date of an existing reservation, identified by its numeric ID.",
+          "Change the date and/or times of an existing reservation, identified by its numeric ID.",
         inputSchema: jsonSchema<{
           reservationId: number;
-          date: string;
+          date?: string;
+          startTime?: string;
+          endTime?: string;
         }>({
           type: "object",
           properties: {
             reservationId: { type: "number", description: "The numeric reservation ID" },
             date: { type: "string", description: "New ISO date string for the reservation" },
+            startTime: { type: "string", description: "New start time of booking in 24h format (HH:MM)" },
+            endTime: { type: "string", description: "New end time of booking in 24h format (HH:MM)" },
           },
-          required: ["reservationId", "date"],
+          required: ["reservationId"],
           additionalProperties: false,
         }),
-        execute: async ({ reservationId, date }) => {
+        execute: async ({ reservationId, date, startTime, endTime }) => {
           const reservation = await prisma.reservation.findUnique({
             where: { id: reservationId },
           });
@@ -477,29 +488,38 @@ Rules:
           }
 
           // Ensure the same resource isn't already booked on the new date.
-          const clash = await prisma.reservation.findFirst({
-            where: {
-              id: { not: reservationId },
-              venueId: reservation.venueId,
-              workspaceId: reservation.workspaceId,
-              reservationDate: new Date(date),
-              status: { not: "Cancelled" },
-            },
-          });
-          if (clash)
-            return {
-              success: false,
-              message: "That resource is already booked on the new date.",
-            };
+          const targetDate = date ? new Date(date) : reservation.reservationDate;
+
+          if (date) {
+            const clash = await prisma.reservation.findFirst({
+              where: {
+                id: { not: reservationId },
+                venueId: reservation.venueId,
+                workspaceId: reservation.workspaceId,
+                reservationDate: targetDate,
+                status: { not: "Cancelled" },
+              },
+            });
+            if (clash)
+              return {
+                success: false,
+                message: "That resource is already booked on the new date.",
+              };
+          }
 
           await prisma.reservation.update({
             where: { id: reservationId },
-            data: { reservationDate: new Date(date), status: "Confirmed" },
+            data: {
+              reservationDate: targetDate,
+              startTime: startTime !== undefined ? startTime : reservation.startTime,
+              endTime: endTime !== undefined ? endTime : reservation.endTime,
+              status: "Confirmed",
+            },
           });
           revalidateDashboard();
           return {
             success: true,
-            message: `Reservation RES-${reservationId} has been moved to ${date}.`,
+            message: `Reservation RES-${reservationId} has been updated successfully.`,
           };
         },
       }),
@@ -527,6 +547,8 @@ Rules:
               resource: r.venue?.name ?? r.workspace?.name,
               type: r.venue ? "venue" : "workspace",
               date: r.reservationDate.toISOString(),
+              startTime: r.startTime,
+              endTime: r.endTime,
               status: r.status,
             })),
             message: `Found ${reservations.length} reservation(s).`,

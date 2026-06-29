@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon, MapPinIcon, LaptopIcon, SparklesIcon, ArrowRightIcon, ClockIcon } from "lucide-react";
 import Link from "next/link";
 
+const formatTimeOption = (t: string) => {
+  const [hour, minute] = t.split(":");
+  const h = parseInt(hour);
+  const ampm = h >= 12 ? "PM" : "AM";
+  const displayHour = h % 12 === 0 ? 12 : h % 12;
+  return `${displayHour}:${minute} ${ampm}`;
+};
+
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -147,13 +155,21 @@ export default async function DashboardPage() {
                         RES-{res.id}
                       </span>
                     </div>
-                    <CardDescription className="flex items-center gap-1 text-sm">
-                      <CalendarIcon className="h-3.5 w-3.5" />
-                      {new Date(res.reservationDate).toLocaleDateString("en-US", {
-                        weekday: "short",
-                        month: "short",
-                        day: "numeric",
-                      })}
+                    <CardDescription className="flex items-center gap-1.5 text-sm flex-wrap">
+                      <span className="flex items-center gap-1">
+                        <CalendarIcon className="h-3.5 w-3.5" />
+                        {new Date(res.reservationDate).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                      {res.startTime && res.endTime && (
+                        <span className="flex items-center gap-1 bg-secondary px-1.5 py-0.5 rounded text-xs font-medium">
+                          <ClockIcon className="h-3 w-3" />
+                          {formatTimeOption(res.startTime)} - {formatTimeOption(res.endTime)}
+                        </span>
+                      )}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

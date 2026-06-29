@@ -53,7 +53,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const reservationId = parseInt(id);
     const updated = await prisma.reservation.update({
       where: { id: reservationId },
-      data: { reservationDate: new Date(parseResult.data.reservationDate) },
+      data: {
+        reservationDate: new Date(parseResult.data.reservationDate),
+        startTime: parseResult.data.startTime ?? null,
+        endTime: parseResult.data.endTime ?? null,
+      },
     });
 
     return NextResponse.json(updated);

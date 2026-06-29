@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { venueId, workspaceId, reservationDate } = parseResult.data;
+    const { venueId, workspaceId, reservationDate, startTime, endTime } = parseResult.data;
 
     // Prevent double-booking: check if resource is already reserved on this date
     const conflict = await prisma.reservation.findFirst({
@@ -73,6 +73,8 @@ export async function POST(req: Request) {
         venueId: venueId ?? null,
         workspaceId: workspaceId ?? null,
         reservationDate: new Date(reservationDate),
+        startTime: startTime ?? null,
+        endTime: endTime ?? null,
         status: "Confirmed",
       },
     });
